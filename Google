@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+require '~/Документы/grep/Grep/ClassGoogle.rb'
+
+class String 
+	def red 
+		"\e[31m#{self}\e[0m" 
+	end
+end
+
+
+srch   = ARGV[-2]
+path = ARGV[-1]
+google = Google.new
+google.search_args
+

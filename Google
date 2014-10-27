@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require '~/Документы/grep/Grep/ClassGoogle.rb'
+require '~/Documents/Ruby/G/ClassGoogle.rb'
 
 class String 
 	def red 

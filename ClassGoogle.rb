@@ -20,7 +20,7 @@ class String
 	end
 
 	def green 
-		"\e[32m#{self}\e[0m" 
+		"\e[42m#{self}\e[0m" 
 	end
 end
 
@@ -46,7 +46,7 @@ class Google
 	##### определяет поиск по папке или по файлу #######
 	# для обычного ввода
 	def search(argSrch, argPath)					    
-		@srch = argSrch
+		@srch =argSrch
 		@path   = argPath
 		if ARGV.include?('-R')		 				
 			searchReturn = folderSearch
@@ -95,14 +95,14 @@ class Google
 		pos = Array.new(@sf.length){Array.new}
 		if ARGV.include?('-e')
 			pos = eGetPositions
-		else
+		else		
 			pos = getPositions
 		end
 		#сформировать конечную строку
-		searchReturn[0] = stringForm
-		searchReturn[0].push(file) # добавляет в конец строки название файла
+		searchReturn[0] = stringForm(pos)
 		# доп.строки при аргументе -А
 		addStrings(searchReturn[0], numb) if ARGV.include?('-A')		
+		searchReturn[0].push(file) # добавляет в конец строки название файла
 		return searchReturn;
 	end
 
@@ -138,12 +138,11 @@ class Google
 				else
 					pos = getPositions
 				end
-
 				#сформировать конечную строку
-				searchReturn[i] = stringForm			
-				searchReturn[i].push(file)#добавляет в конец строки название файла
+				searchReturn[i] = stringForm(pos)			
 				# доп.строки при аргументе -А
 				addStrings(searchReturn[i], numb) if ARGV.include?('-A')				
+				searchReturn[i].push(file)#добавляет в конец строки название файла
 			end
 		else 
 			puts 'Это не каталог! Уберите -R'.red
@@ -155,21 +154,21 @@ class Google
 	###############################################################
 	############# определить позиции искомых подстрок #############
 	def getPositions
-		@positions = Array.new(@sf.length){Array.new}
+		positions = Array.new(@sf.length){Array.new}
 		@sf.each_with_index do |string, currStr| 		
-			@positions[currStr][0] = string.index(@srch)
+			positions[currStr][0] = string.index(@srch)
 			#искать до тех пор, пока check находит следующее значение, чтобы не получить исключение
-			check = string.index(@srch, @positions[currStr][0]+1)  if @positions[currStr][0] != nil
+			check = string.index(@srch, positions[currStr][0]+1)  if positions[currStr][0] != nil
 			i = 0
 		 	while check != nil
 				i += 1
-				nextPos = @positions[currStr][i-1]+1
-			    @positions[currStr][i] = string.index(@srch, nextPos)
-			    check = string.index(@srch, @positions[currStr][i]+1)
+				nextPos = positions[currStr][i-1]+1
+			    positions[currStr][i] = string.index(@srch, nextPos)
+			    check = string.index(@srch, positions[currStr][i]+1)
 			end
 		end
 
-		return @positions
+		return positions
 	end
 
 	#######################################################################################
@@ -193,10 +192,10 @@ class Google
 	
 	#########################################################################
 	#############  	      Окраска найденных подстрок                 #######	
-	def stringForm
+	def stringForm(positions)
 		str = Array.new(@sf.length){ Array.new }		
 		searchl = @srch.length   
-		@positions.each_with_index do |string,currStr|
+		positions.each_with_index do |string,currStr|
 			i = -1
 			#если в строке нет совпадений, пометим ее как пустую []
 			if string[0] != nil
@@ -255,17 +254,21 @@ class Google
 	#########################################################
 	######## вывести все это дело ###########################
 	def showResult(answer)
-		puts 	 				
+		puts 	 		
+			
 		answer.each_with_index  do |ans, fileNumber|
-			puts ans[ans.length-1].green	if ans[0] != ""
-			puts '*'*100 					if ans[0] != ""
-			ans.each_with_index do |an, i| 
-				next if i == ans.length-1  # в последней строке записано название файла
-				an.each do |a|
-					print a
+			#чтобы не выводило имя файла, если в нем ничего не найдено или это архив 
+			if (ans[0] != "") && !(ans.first(ans.length - 1).all?{ |a| a.empty? })
+				puts ans[ans.length-1].green	
+				puts '*'*100 					
+				ans.each_with_index do |an, i| 
+					next if i == ans.length-1  # в последней строке записано название файла
+					an.each do |a|
+						print a
+					end
 				end
+				puts '*'*100 					
 			end
-			puts '*'*100 					if ans[0] != ""
 		end
 	end
 

@@ -1,5 +1,5 @@
- 
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 #  														 На выход идет массив вида:
 # 														     массивhReturn	
@@ -11,7 +11,6 @@
 #                     			 |													         	   |
 #         		     	 	   File1								           		   		     File2	
 #
-require 'pry'
 require 'zlib'
 
 class String 
